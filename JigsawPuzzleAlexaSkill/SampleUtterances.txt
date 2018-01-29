@@ -1,0 +1,3 @@
+Initialize initialize 
+Initialize start the game 
+Initialize shuffle and start
