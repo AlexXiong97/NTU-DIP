@@ -1,7 +1,7 @@
 {
     "interactionModel":{
         "languageModel":{
-            "invocationName":"Sliding Puzzle",
+            "invocationName":"sliding puzzle",
             "types":[],
             "intents":[
                 {
@@ -17,28 +17,11 @@
                   "samples": []
                 },
                 {
-                    "name":"HelloWorldIntent",
-                    "slots":[
-
-                    ],
+                    "name":"InitializeIntent",
                     "samples":[
-                        "hello",
-                        "say hello",
-                        "say hello world"
-                    ]
-                },
-                {
-                    "name":"MyNameIsIntent",
-                    "slots":[
-                        {
-                            "name":"name",
-                            "type":"AMAZON.US_FIRST_NAME"
-                        }
-                    ],
-                    "samples":[
-                        "my name is {name}",
-                        "i am {name}",
-                        "you can call me {name}"
+                        "initialize",
+                        "start the game",
+                        "play"
                     ]
                 }
             ]
