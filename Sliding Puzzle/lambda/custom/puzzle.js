@@ -1,73 +1,103 @@
+const fs = require('fs');
 const original_puzzle = [
   [8, null, 5],
   [3, 6, 4],
   [2, 7, 1]
 ];
-
+exports.initializePuzzle = () => {
+  fs.writeFileSync('puzzle_state.txt',JSON.stringify(original_puzzle), 'utf-8');
+}
 exports.moveLeft = () =>{
   var moved = false;
+  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+  loop1:
   for (row=0; row<3;row++){
     // only inspect 2nd and 3rd col
+  loop2:
     for (col=1; col<3; col++){
-      if (original_puzzle[row][col-1] == null) {
-        original_puzzle[row][col-1] = original_puzzle[row][col];
-        original_puzzle[row][col] = null;
+      if (puzzle_state[row][col-1] == null) {
+        puzzle_state[row][col-1] = puzzle_state[row][col];
+        puzzle_state[row][col] = null;
         moved = true;
-        break;
+        break loop1;
       }
     }
   }
   if (!moved) {
     console.log("Invalid move!");
+  } else {
+    fs.writeFileSync('puzzle_state.txt',JSON.stringify(puzzle_state), 'utf-8');
   }
 }
 exports.moveRight = () =>{
   var moved = false;
+  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+  loop1:
   for (row=0; row<3;row++){
     // only inspect 1st and 2nd col
+  loop2:
     for (col=0; col<2; col++){
-      if (original_puzzle[row][col+1] == null) {
-        original_puzzle[row][col+1] = original_puzzle[row][col];
-        original_puzzle[row][col] = null;
-        break;
+      if (puzzle_state[row][col+1] == null) {
+        puzzle_state[row][col+1] = puzzle_state[row][col];
+        puzzle_state[row][col] = null;
+        moved = true;
+        break loop1;
       }
     }
   }
   if (!moved) {
     console.log("Invalid move!");
+  } else {
+    fs.writeFileSync('puzzle_state.txt',JSON.stringify(puzzle_state), 'utf-8');
   }
 }
 exports.moveUp = () =>{
   var moved = false;
+  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
   // only inspect the 2nd and 3rd row
+  loop1:
   for (row=1; row<3;row++){
+  loop2:
     for (col=0; col<3; col++){
-      if (original_puzzle[row-1][col] == null) {
-        original_puzzle[row-1][col] = original_puzzle[row][col];
-        original_puzzle[row][col] = null;
-        break;
+      if (puzzle_state[row-1][col] == null) {
+        puzzle_state[row-1][col] = puzzle_state[row][col];
+        puzzle_state[row][col] = null;
+        moved = true;
+        break loop1;
       }
     }
   }
   if (!moved) {
     console.log("Invalid move!");
+  } else {
+    fs.writeFileSync('puzzle_state.txt',JSON.stringify(puzzle_state), 'utf-8');
   }
 }
 exports.moveDown = () =>{
   var moved = false;
+  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
   // only inspect the 1st and 2nd row
+  loop1:
   for (row=0; row<2;row++){
+  loop2:
     for (col=0; col<3; col++){
-      if (original_puzzle[row+1][col] == null) {
-        original_puzzle[row+1][col] = original_puzzle[row][col];
-        original_puzzle[row][col] = null;
-        break;
+      if (puzzle_state[row+1][col] == null) {
+        puzzle_state[row+1][col] = puzzle_state[row][col];
+        puzzle_state[row][col] = null;
+        moved = true;
+        break loop1;
       }
     }
   }
   if (!moved) {
     console.log("Invalid move!");
+  } else {
+    fs.writeFileSync('puzzle_state.txt',JSON.stringify(puzzle_state), 'utf-8');
   }
 }
-this.moveDown();
-console.log(original_puzzle);
+
+exports.readStatus = () => {
+  return JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+}
+// this.moveRight();
+// console.log(original_puzzle);
