@@ -1,5 +1,6 @@
 const Alexa = require('alexa-sdk');
 const https = require('https');
+const puzzle = require('./puzzle');
 
 exports.handler = function(event, context, callback) {
     const alexa = Alexa.handler(event, context, callback);
@@ -23,9 +24,11 @@ const handlers = {
 	},
 	'InitializeIntent': function() {
 		// emit response
-		this.response.speak('Welcome to the final rounds, your mission should you choose to accept it. What you are looking at is not your typical sliding puzzle'+'every move is done through voice control'+
-			' There are four commands you could shout out:'+' move up'+' move down'+' move left'+' and move right'+' Now, enjoy the game!');
-		this.emit(':responseReady');
+		this.response.speak('Welcome to the final rounds, your mission should you choose to accept it. What you are looking at is not your typical sliding puzzle.'+'every move is done through voice control'+
+			' There are four commands you could shout out:'+' move up'+' move down'+' move left'+' and move right.'+' Now, enjoy the game!');
+    puzzle.initialzePuzzle();
+    console.log(puzzle.readStatus());
+    this.emit(':responseReady');
 
 	},
 	'MoveIntent': function() {
@@ -33,8 +36,33 @@ const handlers = {
 		// Handle https request here on every move intent
 		// ...
 		var slotValues = getSlotValues(this.event.request.intent.slots);
-
-		this.emit(':tell',"Okay, moving "+slotValues['direction']['resolved']);
+    if (puzzle.checkSucess()){
+      // puzzle solved
+      this.emit(":tell","Dude, you have finished the puzzle, bye bye!");
+    } else {
+      // haven't solved the puzzle yet
+      switch(slotValues['direction']['resolved']){
+        case "left":
+          puzzle.moveLeft();
+          break;
+        case "right":
+          puzzle.moveRight();
+          break;
+        case "up":
+          puzzle.moveUp();
+          break;
+        case "down":
+          puzzle.moveDown();
+          break;
+        default:
+          break;
+      }
+      if (puzzle.checkSucess()){
+        this.emit(':tell',"Congradulations! You have solved the puzzle! Maggie is saved!");
+      }
+      // giving feedback
+  		this.emit(':tell',"Okay, moving, "+slotValues['direction']['resolved']);
+    }
 	},
 	'SessionEndedRequest' : function() {
     console.log('Session ended with reason: ' + this.event.request.reason);
@@ -62,7 +90,7 @@ const handlers = {
 // after doing the logic in new session,
 // route to the proper intent
 
-function routeToIntent() {  
+function routeToIntent() {
   switch (this.event.request.type) {
     case 'IntentRequest':
       this.emit(this.event.request.intent.name);

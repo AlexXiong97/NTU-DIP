@@ -99,5 +99,25 @@ exports.moveDown = () =>{
 exports.readStatus = () => {
   return JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
 }
-// this.moveRight();
+
+exports.checkSucess = () =>{
+  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+  loop1:
+  for (row=0; row<3;row++){
+  loop2:
+    for (col=0; col<3; col++){
+      if (row == 2 && col == 2){
+        break loop1;
+      } else {
+        if (puzzle_state[row][col] != row*3+col+1) {
+          console.log("puzzle not solved yet!");
+          return false;
+        }
+      }
+    }
+  }
+  console.log("puzzle solved!");
+  return true;
+}
+// this.checkSucess();
 // console.log(original_puzzle);
