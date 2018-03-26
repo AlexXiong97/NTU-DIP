@@ -1,15 +1,6 @@
-const fs = require('fs');
-const original_puzzle = [
-  [8, null, 5],
-  [3, 6, 4],
-  [2, 7, 1]
-];
-exports.initializePuzzle = () => {
-  fs.writeFileSync('puzzle_state.txt',JSON.stringify(original_puzzle), 'utf-8');
-}
-exports.moveLeft = () =>{
+exports.moveLeft = (beforeState) =>{
   var moved = false;
-  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+  var puzzle_state = beforeState;
   loop1:
   for (row=0; row<3;row++){
     // only inspect 2nd and 3rd col
@@ -25,13 +16,20 @@ exports.moveLeft = () =>{
   }
   if (!moved) {
     console.log("Invalid move!");
+    return {
+      state: puzzle_state,
+      validity: false
+    };
   } else {
-    fs.writeFileSync('puzzle_state.txt',JSON.stringify(puzzle_state), 'utf-8');
+    return {
+      state: puzzle_state,
+      validity: true
+    };
   }
 }
-exports.moveRight = () =>{
+exports.moveRight = (beforeState) =>{
   var moved = false;
-  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+  var puzzle_state = beforeState;
   loop1:
   for (row=0; row<3;row++){
     // only inspect 1st and 2nd col
@@ -47,13 +45,20 @@ exports.moveRight = () =>{
   }
   if (!moved) {
     console.log("Invalid move!");
+    return {
+      state: puzzle_state,
+      validity: false
+    };
   } else {
-    fs.writeFileSync('puzzle_state.txt',JSON.stringify(puzzle_state), 'utf-8');
+    return {
+      state: puzzle_state,
+      validity: true
+    };
   }
 }
-exports.moveUp = () =>{
+exports.moveUp = (beforeState) =>{
   var moved = false;
-  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+  var puzzle_state = beforeState;
   // only inspect the 2nd and 3rd row
   loop1:
   for (row=1; row<3;row++){
@@ -69,13 +74,20 @@ exports.moveUp = () =>{
   }
   if (!moved) {
     console.log("Invalid move!");
+    return {
+      state: puzzle_state,
+      validity: false
+    };
   } else {
-    fs.writeFileSync('puzzle_state.txt',JSON.stringify(puzzle_state), 'utf-8');
+    return {
+      state: puzzle_state,
+      validity: true
+    };
   }
 }
-exports.moveDown = () =>{
+exports.moveDown = (beforeState) =>{
   var moved = false;
-  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+  var puzzle_state = beforeState;
   // only inspect the 1st and 2nd row
   loop1:
   for (row=0; row<2;row++){
@@ -91,17 +103,19 @@ exports.moveDown = () =>{
   }
   if (!moved) {
     console.log("Invalid move!");
+    return {
+      state: puzzle_state,
+      validity: false
+    };
   } else {
-    fs.writeFileSync('puzzle_state.txt',JSON.stringify(puzzle_state), 'utf-8');
+    return {
+      state: puzzle_state,
+      validity: true
+    };
   }
 }
 
-exports.readStatus = () => {
-  return JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
-}
-
-exports.checkSucess = () =>{
-  var puzzle_state = JSON.parse(fs.readFileSync('puzzle_state.txt','utf-8'));
+exports.checkSucess = (puzzle_state) =>{
   loop1:
   for (row=0; row<3;row++){
   loop2:
