@@ -3,7 +3,7 @@ module.exports = Object.freeze({
   appId: 'amzn1.ask.skill.366897d9-f60f-4e9d-83cb-a731c5855e6f',
   // DynamoDB table name
   dynamoDBTableName: 'PuzzleStateTable',
-  originalPuzzle = [
+  originalPuzzle: [
     [8, null, 5],
     [3, 6, 4],
     [2, 7, 1]

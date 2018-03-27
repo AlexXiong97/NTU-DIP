@@ -14,16 +14,16 @@ exports.moveLeft = (beforeState) =>{
       }
     }
   }
-  if (!moved) {
+  if (moved) {
+    return {
+      state: puzzle_state,
+      validity: true
+    };
+  } else {
     console.log("Invalid move!");
     return {
       state: puzzle_state,
       validity: false
-    };
-  } else {
-    return {
-      state: puzzle_state,
-      validity: true
     };
   }
 }
@@ -43,16 +43,16 @@ exports.moveRight = (beforeState) =>{
       }
     }
   }
-  if (!moved) {
+  if (moved) {
+    return {
+      state: puzzle_state,
+      validity: true
+    };
+  } else {
     console.log("Invalid move!");
     return {
       state: puzzle_state,
       validity: false
-    };
-  } else {
-    return {
-      state: puzzle_state,
-      validity: true
     };
   }
 }
@@ -72,16 +72,16 @@ exports.moveUp = (beforeState) =>{
       }
     }
   }
-  if (!moved) {
+  if (moved) {
+    return {
+      state: puzzle_state,
+      validity: true
+    };
+  } else {
     console.log("Invalid move!");
     return {
       state: puzzle_state,
       validity: false
-    };
-  } else {
-    return {
-      state: puzzle_state,
-      validity: true
     };
   }
 }
@@ -101,16 +101,16 @@ exports.moveDown = (beforeState) =>{
       }
     }
   }
-  if (!moved) {
+  if (moved) {
+    return {
+      state: puzzle_state,
+      validity: true
+    };
+  } else {
     console.log("Invalid move!");
     return {
       state: puzzle_state,
       validity: false
-    };
-  } else {
-    return {
-      state: puzzle_state,
-      validity: true
     };
   }
 }

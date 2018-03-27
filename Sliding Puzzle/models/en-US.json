@@ -16,11 +16,18 @@
                   "samples": []
                 },
                 {
-                  "name":"InitializeIntent",
+                  "name": "AMAZON.YesIntent",
+                  "samples": []
+                },{
+                  "name": "AMAZON.NoIntent",
+                  "samples": []
+                },
+                {
+                  "name":"CheckStatusIntent",
                   "samples":[
-                      "initialize",
-                      "start the game",
-                      "play the game"
+                      "puzzle status",
+                      "puzzle state",
+                      "show me the status"
                   ]
                 },
                 {
