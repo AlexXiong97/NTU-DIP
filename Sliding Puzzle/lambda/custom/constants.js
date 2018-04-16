@@ -11,5 +11,6 @@ module.exports = Object.freeze({
   states: {
     START_MODE: '_START_MODE',
     PLAY_MODE: '_PLAY_MODE'
-  }
+  },
+  arduinoIP: "http://172.20.124.160"
 });

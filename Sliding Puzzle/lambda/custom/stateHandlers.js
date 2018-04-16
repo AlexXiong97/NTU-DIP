@@ -1,6 +1,8 @@
 const Alexa = require('alexa-sdk');
 const constants = require('./constants');
 const https = require('https');
+const http = require('http');
+const request = require("request");
 const puzzle = require('./puzzle');
 
 const stateHandlers = {
@@ -85,6 +87,14 @@ const stateHandlers = {
             var result = puzzle.moveLeft(beforeState);
             afterState = result.state;
             this.attributes['invalidMove'] = !result.validity;
+            // request(constants.arduinoIP, function(error, response, body){
+            //   if (error) {
+            //     console.log("Error when sending http request: ", error);
+            //   } else if (response) {
+            //     console.log("StatusCode: ", response && response.statuscode);
+            //     console.log('ResponseBody: ', body);
+            //   }
+            // });
             break;
           case "right":
             var result = puzzle.moveRight(beforeState);
@@ -215,3 +225,39 @@ const getSlotValues = function(filledSlots) {
   //console.log("slot values: " + JSON.stringify(slotValues));
   return slotValues;
 }
+
+// HTTP POST function
+//
+// function httpPost(nextMove, callback) {
+//     var post_data = {"move": nextMove};
+//
+//     var post_options = {
+//         host:  'http://172.28.226.71',
+//         port: '80',
+//         path: '/',
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'User-Agent': 'Arduino/1.0',
+//             'Content-Length': Buffer.byteLength(JSON.stringify(post_data))
+//         }
+//     };
+//
+//     var post_req = http.request(post_options, res => {
+//         res.setEncoding('utf8');
+//         var returnData = "";
+//         res.on('data', chunk =>  {
+//             returnData += chunk;
+//         });
+//         res.on('end', () => {
+//             // this particular API returns a JSON structure:
+//             // returnData: {"nextMove":"Left","status":"moving"}
+//
+//             callback(JSON.parse(returnData));
+//
+//         });
+//     });
+//     post_req.write(JSON.stringify(post_data));
+//     post_req.end();
+//
+// }
