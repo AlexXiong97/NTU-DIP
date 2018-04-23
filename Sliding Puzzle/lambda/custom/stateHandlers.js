@@ -1,9 +1,19 @@
 const Alexa = require('alexa-sdk');
+const aws = require('aws-sdk');
 const constants = require('./constants');
 const https = require('https');
 const http = require('http');
 const request = require("request");
 const puzzle = require('./puzzle');
+
+var lambda = new aws.Lambda({
+  region: 'us-east-1'
+});
+var params = {
+  FunctionName: 'arduinoRequestHandlers',
+  InvocationType: 'RequestResponse',
+  Payload: ''
+}
 
 const stateHandlers = {
   startModeIntentHandlers : Alexa.CreateStateHandler(constants.states.START_MODE, {
@@ -87,14 +97,20 @@ const stateHandlers = {
             var result = puzzle.moveLeft(beforeState);
             afterState = result.state;
             this.attributes['invalidMove'] = !result.validity;
-            // request(constants.arduinoIP, function(error, response, body){
-            //   if (error) {
-            //     console.log("Error when sending http request: ", error);
-            //   } else if (response) {
-            //     console.log("StatusCode: ", response && response.statuscode);
-            //     console.log('ResponseBody: ', body);
-            //   }
-            // });
+
+            params.Payload = JSON.stringify({
+              "a": 4,
+              "b": 5,
+              "op": "+"
+            });
+            lambda.invoke(params, function(error, data){
+              if (error) {
+                console.log("error!"+ error);
+              }
+              if(data.Payload){
+                console.log("succeed with callback payload: "+JSON.stringify(data.Payload))
+              }
+            });
             break;
           case "right":
             var result = puzzle.moveRight(beforeState);
