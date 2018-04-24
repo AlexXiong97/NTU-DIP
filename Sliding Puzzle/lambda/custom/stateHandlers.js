@@ -34,6 +34,7 @@ const stateHandlers = {
       this.attributes['moveCount'] = 0;
       this.handler.state = constants.states.PLAY_MODE;
       // update proxy "pulling service"
+      var mythis = this
       params.Payload = JSON.stringify({
         "action": "update",
         "toMove": false,
@@ -45,13 +46,18 @@ const stateHandlers = {
         }
         if(data.Payload){
           console.log("succeed with callback payload: "+JSON.stringify(data.Payload));
-          // generate response
-          this.response.shouldEndSession(false);
-          this.response.speak("Great! Make your move!")
+          mythis.response.shouldEndSession(false);
+          mythis.response.speak("Great! Make your move!")
             .listen('Say help to learn about the rules or make your move!');
-          this.emit(':responseReady');
+          mythis.emit(':responseReady');
         }
       });
+      // this.response.shouldEndSession(false);
+      // console.log("reached here");
+      // this.response.speak("Great! Make your move!")
+      //   .listen('Say help to learn about the rules or make your move!');
+      // console.log("final steps");
+      // this.emit(':responseReady');
     },
     'AMAZON.NoIntent': function() {
       console.log("NOINTENT");
@@ -94,6 +100,7 @@ const stateHandlers = {
     },
     'MoveIntent': function() {
       // First check whether the robotic arm is moving by asking arduinoProxy
+      var mythis = this;
       params.Payload = JSON.stringify({
         "action": "availabilityCheck"
       });
@@ -104,60 +111,60 @@ const stateHandlers = {
         if(data.Payload){
           console.log("succeed with callback payload: "+JSON.stringify(data.Payload));
           if (data.Payload.isMoving) {
-            this.response.shouldEndSession(false);
-            this.response.speak("The robotic arm is still moving, please chill out!");
-            this.emit(':responseReady');
+            mythis.response.shouldEndSession(false);
+            mythis.response.speak("The robotic arm is still moving, please chill out!");
+            mythis.emit(':responseReady');
           }
 
           // accept nextMove command only if isMoving == false.
           // set the invalid move to false
-          this.attributes['invalidMove'] = false;
-          const slotValues = getSlotValues(this.event.request.intent.slots);
+          mythis.attributes['invalidMove'] = false;
+          const slotValues = getSlotValues(mythis.event.request.intent.slots);
           const movingDirection = slotValues['direction']['resolved'];
-          const beforeState = this.attributes['puzzleState'];
+          const beforeState = mythis.attributes['puzzleState'];
           console.log("before moving: "+ JSON.stringify(beforeState));
           var afterState = [];
 
           if (puzzle.checkSucess(beforeState)) {
             // if solved already
-            this.response.speak("You have successfully solved the puzzle with "+ this.attributes['moveCount']+ "moves!");
-            this.emit(':responseReady');
+            mythis.response.speak("You have successfully solved the puzzle with "+ mythis.attributes['moveCount']+ "moves!");
+            mythis.emit(':responseReady');
           } else {
             // if haven't solved yet
             switch(movingDirection){
               case "left":
                 var result = puzzle.moveLeft(beforeState);
                 afterState = result.state;
-                this.attributes['invalidMove'] = !result.validity;
+                mythis.attributes['invalidMove'] = !result.validity;
                 break;
               case "right":
                 var result = puzzle.moveRight(beforeState);
                 afterState = result.state;
-                this.attributes['invalidMove'] = !result.validity;
+                mythis.attributes['invalidMove'] = !result.validity;
                 break;
               case "up":
                 var result = puzzle.moveUp(beforeState);
                 afterState = result.state;
-                this.attributes['invalidMove'] = !result.validity;
+                mythis.attributes['invalidMove'] = !result.validity;
                 break;
               case "down":
                 var result = puzzle.moveDown(beforeState);
                 afterState = result.state;
-                this.attributes['invalidMove'] = !result.validity;
+                mythis.attributes['invalidMove'] = !result.validity;
                 break;
               default:
                 break;
             }
             console.log("After moving, the state:"+ JSON.stringify(afterState));
-            if (this.attributes['invalidMove']) {
+            if (mythis.attributes['invalidMove']) {
               // invalid move, don't change anything. return error msg as feedback.
-              this.response.shouldEndSession(false);
-              this.response.speak("Invalid Move");
-              this.emit(':responseReady');
+              mythis.response.shouldEndSession(false);
+              mythis.response.speak("Invalid Move");
+              mythis.emit(':responseReady');
             } else {
               // update the puzzleState and moveCount
-              this.attributes['puzzleState'] = afterState;
-              this.attributes['moveCount'] += 1;
+              mythis.attributes['puzzleState'] = afterState;
+              mythis.attributes['moveCount'] += 1;
               // update arduinoProxy
               params.Payload = JSON.stringify({
                 "action": "update",
@@ -177,13 +184,13 @@ const stateHandlers = {
               // return Alexa response and waiting for nextMove
               if (puzzle.checkSucess(afterState)) {
                 // if solved
-                this.attributes['solved'] = true;
-                this.response.speak("Okay, moving "+ movingDirection+ ". Congradulations! You have solved the puzzle!");
-                this.emit(':responseReady');
+                mythis.attributes['solved'] = true;
+                mythis.response.speak("Okay, moving "+ movingDirection+ ". Congradulations! You have solved the puzzle!");
+                mythis.emit(':responseReady');
               } else {
-                this.response.shouldEndSession(false);
-                this.response.speak("Okay, moving "+ movingDirection);
-                this.emit(':responseReady');
+                mythis.response.shouldEndSession(false);
+                mythis.response.speak("Okay, moving "+ movingDirection);
+                mythis.emit(':responseReady');
               }
             }
           }

@@ -19,16 +19,6 @@ exports.handler = function(event, context, callback) {
 
   var res = {};
   res.action = event.action;
-
-  switch(event.action){
-    case "update":
-
-    case "availabilityCheck":
-
-    default:
-      callback("400 No Matching Action");
-      break;
-  }
   // Due to asynchronous database read/write operation
   // switch case will ends up premature return/callback.
   if (event.action == "update"){
@@ -37,7 +27,7 @@ exports.handler = function(event, context, callback) {
         callback(err, res);
       } else {
         res.data = data;
-        callback(null, data);
+        callback(null, res);
       }
     });
   }
