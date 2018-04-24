@@ -33,6 +33,21 @@ const stateHandlers = {
       this.attributes['puzzleState'] = constants.originalPuzzle;
       this.attributes['moveCount'] = 0;
       this.handler.state = constants.states.PLAY_MODE;
+      // update proxy "pulling service"
+      params.Payload = JSON.stringify({
+        "action": "update",
+        "toMove": false,
+        "moving": false
+      });
+      lambda.invoke(params, function(error, data){
+        if (error) {
+          console.log("error!"+ error);
+        }
+        if(data.Payload){
+          console.log("succeed with callback payload: "+JSON.stringify(data.Payload))
+        }
+      });
+      // generate response
       this.response.shouldEndSession(false);
       this.response.speak("Great! Make your move!")
         .listen('Say help to learn about the rules or make your move!');
@@ -98,19 +113,7 @@ const stateHandlers = {
             afterState = result.state;
             this.attributes['invalidMove'] = !result.validity;
 
-            params.Payload = JSON.stringify({
-              "a": 4,
-              "b": 5,
-              "op": "+"
-            });
-            lambda.invoke(params, function(error, data){
-              if (error) {
-                console.log("error!"+ error);
-              }
-              if(data.Payload){
-                console.log("succeed with callback payload: "+JSON.stringify(data.Payload))
-              }
-            });
+
             break;
           case "right":
             var result = puzzle.moveRight(beforeState);

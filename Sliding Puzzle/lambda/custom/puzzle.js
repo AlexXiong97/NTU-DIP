@@ -135,3 +135,18 @@ exports.checkSucess = (puzzle_state) =>{
 }
 // this.checkSucess();
 // console.log(original_puzzle);
+
+exports.getPosition = (puzzle_state) => {
+  loop1:
+  for (row=0; row<3;row++){
+  loop2:
+    for (col=0; col<3; col++){
+      if (puzzle_state[row][col] == null) {
+        return {
+          'row': row,
+          'col': col
+        };
+      }
+    }
+  }
+}
