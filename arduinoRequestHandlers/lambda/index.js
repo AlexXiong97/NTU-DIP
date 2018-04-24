@@ -10,11 +10,11 @@ exports.handler = function(event, context, callback) {
   console.log('Received event:', JSON.stringify(event, null, 2));
   if (event.Records != undefined){
     // response from DynamoDB
-    callback();
+    return;
   }
 
   if (event.action == undefined) {
-    callback("400 Invalid Action");
+    callback("400 Unspecified Action");
   }
 
   var res = {};
@@ -22,18 +22,35 @@ exports.handler = function(event, context, callback) {
 
   switch(event.action){
     case "update":
-      update(event.toMove, event.startingPos, event.endingPos, event.moving, function(err, data){
-        if (err) {
-          res.error = err;
-        } else {
-          res.data = data;
-        }
-      });
+
+    case "availabilityCheck":
+
     default:
+      callback("400 No Matching Action");
       break;
   }
+  // Due to asynchronous database read/write operation
+  // switch case will ends up premature return/callback.
+  if (event.action == "update"){
+    update(event.toMove, event.startingPos, event.endingPos, event.moving, function(err, data){
+      if (err) {
+        callback(err, res);
+      } else {
+        res.data = data;
+        callback(null, data);
+      }
+    });
+  }
+  if (event.action == "availabilityCheck"){
+    console.log("before: "+ res);
+    isMoving(function(err, result){
+      if (!err) {
+        res.isMoving = result;
+      }
+      callback(null, res);
+    });
+  }
 
-  callback(null, res);
 }
 
 // @param: bool toMove; Object startingPos, endingPos; bool moving.
@@ -56,6 +73,25 @@ const update = function(toMove, startingPos, endingPos, moving, callback) {
     } else {
       console.log("Success", data);
       callback(null, data);
+    }
+  });
+}
+
+const isMoving = function(callback){
+  var params = {
+    TableName: 'arduinoProxy',
+    Key: {
+      'userId': {S: '1'},
+    },
+    ProjectionExpression: 'moving'
+  };
+  ddb.getItem(params, function(err, data){
+    if (err) {
+      console.log("Error", err);
+      callback(err);
+    } else {
+      console.log("Data from ddb: ", data.Item);
+      callback(null, data.Item.moving.BOOL);
     }
   });
 }

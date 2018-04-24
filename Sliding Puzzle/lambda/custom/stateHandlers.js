@@ -44,14 +44,14 @@ const stateHandlers = {
           console.log("error!"+ error);
         }
         if(data.Payload){
-          console.log("succeed with callback payload: "+JSON.stringify(data.Payload))
+          console.log("succeed with callback payload: "+JSON.stringify(data.Payload));
+          // generate response
+          this.response.shouldEndSession(false);
+          this.response.speak("Great! Make your move!")
+            .listen('Say help to learn about the rules or make your move!');
+          this.emit(':responseReady');
         }
       });
-      // generate response
-      this.response.shouldEndSession(false);
-      this.response.speak("Great! Make your move!")
-        .listen('Say help to learn about the rules or make your move!');
-      this.emit(':responseReady');
     },
     'AMAZON.NoIntent': function() {
       console.log("NOINTENT");
@@ -93,68 +93,102 @@ const stateHandlers = {
         this.emitWithState('NewSession'); // Equivalent to the Start Mode NewSession handler
     },
     'MoveIntent': function() {
-      // set the invalid move to false
-      this.attributes['invalidMove'] = false;
-      const slotValues = getSlotValues(this.event.request.intent.slots);
-      const movingDirection = slotValues['direction']['resolved'];
-      const beforeState = this.attributes['puzzleState'];
-      console.log("before moving: "+ JSON.stringify(beforeState));
-      var afterState = [];
-
-      if (puzzle.checkSucess(beforeState)) {
-        // if solved already
-        this.response.speak("You have successfully solved the puzzle with "+ this.attributes['moveCount']+ "moves!");
-        this.emit(':responseReady');
-      } else {
-        // if haven't solved yet
-        switch(movingDirection){
-          case "left":
-            var result = puzzle.moveLeft(beforeState);
-            afterState = result.state;
-            this.attributes['invalidMove'] = !result.validity;
-
-
-            break;
-          case "right":
-            var result = puzzle.moveRight(beforeState);
-            afterState = result.state;
-            this.attributes['invalidMove'] = !result.validity;
-            break;
-          case "up":
-            var result = puzzle.moveUp(beforeState);
-            afterState = result.state;
-            this.attributes['invalidMove'] = !result.validity;
-            break;
-          case "down":
-            var result = puzzle.moveDown(beforeState);
-            afterState = result.state;
-            this.attributes['invalidMove'] = !result.validity;
-            break;
-          default:
-            break;
+      // First check whether the robotic arm is moving by asking arduinoProxy
+      params.Payload = JSON.stringify({
+        "action": "availabilityCheck"
+      });
+      lambda.invoke(params, function(error, data){
+        if (error) {
+          console.log("error!"+ error);
         }
-        console.log("After moving, the state:"+ JSON.stringify(afterState));
-        if (this.attributes['invalidMove']) {
-          // invalid move, don't change anything. return error msg as feedback.
-          this.response.shouldEndSession(false);
-          this.response.speak("Invalid Move");
-          this.emit(':responseReady');
-        } else {
-          // update the puzzleState and moveCount
-          this.attributes['puzzleState'] = afterState;
-          this.attributes['moveCount'] += 1;
-          if (puzzle.checkSucess(afterState)) {
-            // if solved
-            this.attributes['solved'] = true;
-            this.response.speak("Okay, moving "+ movingDirection+ ". Congradulations! You have solved the puzzle!");
-            this.emit(':responseReady');
-          } else {
+        if(data.Payload){
+          console.log("succeed with callback payload: "+JSON.stringify(data.Payload));
+          if (data.Payload.isMoving) {
             this.response.shouldEndSession(false);
-            this.response.speak("Okay, moving "+ movingDirection);
+            this.response.speak("The robotic arm is still moving, please chill out!");
             this.emit(':responseReady');
           }
+
+          // accept nextMove command only if isMoving == false.
+          // set the invalid move to false
+          this.attributes['invalidMove'] = false;
+          const slotValues = getSlotValues(this.event.request.intent.slots);
+          const movingDirection = slotValues['direction']['resolved'];
+          const beforeState = this.attributes['puzzleState'];
+          console.log("before moving: "+ JSON.stringify(beforeState));
+          var afterState = [];
+
+          if (puzzle.checkSucess(beforeState)) {
+            // if solved already
+            this.response.speak("You have successfully solved the puzzle with "+ this.attributes['moveCount']+ "moves!");
+            this.emit(':responseReady');
+          } else {
+            // if haven't solved yet
+            switch(movingDirection){
+              case "left":
+                var result = puzzle.moveLeft(beforeState);
+                afterState = result.state;
+                this.attributes['invalidMove'] = !result.validity;
+                break;
+              case "right":
+                var result = puzzle.moveRight(beforeState);
+                afterState = result.state;
+                this.attributes['invalidMove'] = !result.validity;
+                break;
+              case "up":
+                var result = puzzle.moveUp(beforeState);
+                afterState = result.state;
+                this.attributes['invalidMove'] = !result.validity;
+                break;
+              case "down":
+                var result = puzzle.moveDown(beforeState);
+                afterState = result.state;
+                this.attributes['invalidMove'] = !result.validity;
+                break;
+              default:
+                break;
+            }
+            console.log("After moving, the state:"+ JSON.stringify(afterState));
+            if (this.attributes['invalidMove']) {
+              // invalid move, don't change anything. return error msg as feedback.
+              this.response.shouldEndSession(false);
+              this.response.speak("Invalid Move");
+              this.emit(':responseReady');
+            } else {
+              // update the puzzleState and moveCount
+              this.attributes['puzzleState'] = afterState;
+              this.attributes['moveCount'] += 1;
+              // update arduinoProxy
+              params.Payload = JSON.stringify({
+                "action": "update",
+                "toMove": true,
+                "startingPos": puzzle.getPosition(afterState),
+                "endingPos": puzzle.getPosition(beforeState),
+                "moving": false
+              });
+              lambda.invoke(params, function(error, data){
+                if (error) {
+                  console.log("error!"+ error);
+                }
+                if(data.Payload){
+                  console.log("succeed with callback payload: "+JSON.stringify(data.Payload))
+                }
+              });
+              // return Alexa response and waiting for nextMove
+              if (puzzle.checkSucess(afterState)) {
+                // if solved
+                this.attributes['solved'] = true;
+                this.response.speak("Okay, moving "+ movingDirection+ ". Congradulations! You have solved the puzzle!");
+                this.emit(':responseReady');
+              } else {
+                this.response.shouldEndSession(false);
+                this.response.speak("Okay, moving "+ movingDirection);
+                this.emit(':responseReady');
+              }
+            }
+          }
         }
-      }
+      });
     },
     'CheckStatusIntent': function() {
       console.log(this.attributes['puzzleState']);
