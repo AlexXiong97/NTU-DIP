@@ -52,12 +52,6 @@ const stateHandlers = {
           mythis.emit(':responseReady');
         }
       });
-      // this.response.shouldEndSession(false);
-      // console.log("reached here");
-      // this.response.speak("Great! Make your move!")
-      //   .listen('Say help to learn about the rules or make your move!');
-      // console.log("final steps");
-      // this.emit(':responseReady');
     },
     'AMAZON.NoIntent': function() {
       console.log("NOINTENT");
@@ -121,40 +115,44 @@ const stateHandlers = {
           mythis.attributes['invalidMove'] = false;
           const slotValues = getSlotValues(mythis.event.request.intent.slots);
           const movingDirection = slotValues['direction']['resolved'];
-          const beforeState = mythis.attributes['puzzleState'];
+          // Only making a copy, not a reference/pointer which may change beforeState
+          const beforeState = JSON.parse(JSON.stringify(mythis.attributes['puzzleState']))
           console.log("before moving: "+ JSON.stringify(beforeState));
           var afterState = [];
 
           if (puzzle.checkSucess(beforeState)) {
             // if solved already
+            mythis.response.shouldEndSession(true);
             mythis.response.speak("You have successfully solved the puzzle with "+ mythis.attributes['moveCount']+ "moves!");
             mythis.emit(':responseReady');
           } else {
             // if haven't solved yet
             switch(movingDirection){
               case "left":
-                var result = puzzle.moveLeft(beforeState);
+                var result = puzzle.moveLeft(mythis.attributes['puzzleState']);
                 afterState = result.state;
                 mythis.attributes['invalidMove'] = !result.validity;
                 break;
               case "right":
-                var result = puzzle.moveRight(beforeState);
+                var result = puzzle.moveRight(mythis.attributes['puzzleState']);
                 afterState = result.state;
                 mythis.attributes['invalidMove'] = !result.validity;
                 break;
               case "up":
-                var result = puzzle.moveUp(beforeState);
+                var result = puzzle.moveUp(mythis.attributes['puzzleState']);
                 afterState = result.state;
                 mythis.attributes['invalidMove'] = !result.validity;
                 break;
               case "down":
-                var result = puzzle.moveDown(beforeState);
+                var result = puzzle.moveDown(mythis.attributes['puzzleState']);
                 afterState = result.state;
                 mythis.attributes['invalidMove'] = !result.validity;
                 break;
               default:
+                mythis.attributes['invalidMove'] = true;
                 break;
             }
+            
             console.log("After moving, the state:"+ JSON.stringify(afterState));
             if (mythis.attributes['invalidMove']) {
               // invalid move, don't change anything. return error msg as feedback.
@@ -185,6 +183,7 @@ const stateHandlers = {
               if (puzzle.checkSucess(afterState)) {
                 // if solved
                 mythis.attributes['solved'] = true;
+                mythis.response.shouldEndSession(true);
                 mythis.response.speak("Okay, moving "+ movingDirection+ ". Congradulations! You have solved the puzzle!");
                 mythis.emit(':responseReady');
               } else {
@@ -285,39 +284,3 @@ const getSlotValues = function(filledSlots) {
   //console.log("slot values: " + JSON.stringify(slotValues));
   return slotValues;
 }
-
-// HTTP POST function
-//
-// function httpPost(nextMove, callback) {
-//     var post_data = {"move": nextMove};
-//
-//     var post_options = {
-//         host:  'http://172.28.226.71',
-//         port: '80',
-//         path: '/',
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'User-Agent': 'Arduino/1.0',
-//             'Content-Length': Buffer.byteLength(JSON.stringify(post_data))
-//         }
-//     };
-//
-//     var post_req = http.request(post_options, res => {
-//         res.setEncoding('utf8');
-//         var returnData = "";
-//         res.on('data', chunk =>  {
-//             returnData += chunk;
-//         });
-//         res.on('end', () => {
-//             // this particular API returns a JSON structure:
-//             // returnData: {"nextMove":"Left","status":"moving"}
-//
-//             callback(JSON.parse(returnData));
-//
-//         });
-//     });
-//     post_req.write(JSON.stringify(post_data));
-//     post_req.end();
-//
-// }
