@@ -21,7 +21,7 @@ exports.handler = function(event, context, callback) {
   res.action = event.action;
   // Due to asynchronous database read/write operation
   // switch case will ends up premature return/callback.
-  if (event.action == "arduinoCheck") {
+  if (event.action == "arduinoPulling-v2") {
     isMoving(function(err, result){
       if (err || result==true) {
         callback("Still moving, no check shall be allowed!");
@@ -32,8 +32,8 @@ exports.handler = function(event, context, callback) {
           } else {
             res.toMove = result.toMove.BOOL;
             // puting startingPos in array for easy parse for arduino code.
-            res.startingPos = [JSON.parse(result.startingPos.S).row, JSON.parse(result.startingPos.S).col];
-            res.endingPos = [JSON.parse(result.endingPos.S).row, JSON.parse(result.endingPos.S).col];
+            res.startingPos = JSON.parse(result.startingPos.S)==null? [-1, -1]:[JSON.parse(result.startingPos.S).row, JSON.parse(result.startingPos.S).col];
+            res.endingPos = JSON.parse(result.endingPos.S)==null? [-1, -1]:[JSON.parse(result.endingPos.S).row, JSON.parse(result.endingPos.S).col];
             callback(null, res);
           }
         });

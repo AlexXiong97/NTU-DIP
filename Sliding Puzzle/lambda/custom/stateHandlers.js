@@ -38,7 +38,9 @@ const stateHandlers = {
       params.Payload = JSON.stringify({
         "action": "update",
         "toMove": false,
-        "moving": false
+        "moving": false,
+        "startingPos": [-1, -1],
+        "endingPos": [-1, -1]
       });
       lambda.invoke(params, function(error, data){
         if (error) {
@@ -152,7 +154,7 @@ const stateHandlers = {
                 mythis.attributes['invalidMove'] = true;
                 break;
             }
-            
+
             console.log("After moving, the state:"+ JSON.stringify(afterState));
             if (mythis.attributes['invalidMove']) {
               // invalid move, don't change anything. return error msg as feedback.
