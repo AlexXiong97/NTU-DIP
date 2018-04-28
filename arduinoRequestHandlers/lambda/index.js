@@ -21,7 +21,7 @@ exports.handler = function(event, context, callback) {
   res.action = event.action;
   // Due to asynchronous database read/write operation
   // switch case will ends up premature return/callback.
-  if (event.action == "arduinoPulling-v2") {
+  if (event.action == "arduinoPulling-v3") {
     isMoving(function(err, result){
       if (err || result==true) {
         callback("Still moving, no check shall be allowed!");

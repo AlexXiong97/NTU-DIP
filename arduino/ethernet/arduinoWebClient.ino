@@ -9,7 +9,8 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 // use the numeric IP instead of the name for the server:
 //IPAddress server(74,125,232,128);  // numeric IP for Google (no DNS)
 char server[] = "d1wt7yy3y78u4b.cloudfront.net";    // name address for Google (using DNS)
-const char* pullingResource = "/puzzle?action=arduinoPulling-v2";
+const char* pullingResource = "/puzzle?action=arduinoPulling-v3";
+const char* updateMovingStatusResource = "/puzzle?action=arduinoMove";
 
 struct PuzzleStatus {
   char action[32];
@@ -105,9 +106,22 @@ void printPuzzleStatus(const PuzzleStatus* puzzleStatus) {
   Serial.print(" , ");
   Serial.println(puzzleStatus->startingPos[1]);
   Serial.print("endingPos = ");
-  Serial.println(puzzleStatus->endingPos[0]);
+  Serial.print(puzzleStatus->endingPos[0]);
   Serial.print(" , ");
   Serial.println(puzzleStatus->endingPos[1]);
+}
+
+void updateMovingStatus(const PuzzleStatus* puzzleStatus){
+  if (puzzleStatus->toMove){
+    // send an update request informing the moving status.
+    if (sendRequest(server, updateMovingStatusResource) && skipResponseHeaders()) {
+      char response[512];
+      readReponseContent(response, sizeof(response));
+    }
+    // MOVE MOVE Move!!!
+    // Move robotic arm here based on startingPos and endingPos
+
+  }
 }
 
 void disconnect() {
@@ -116,8 +130,8 @@ void disconnect() {
 }
 
 void wait() {
-  Serial.println("Wait 60 seconds");
-  delay(100000);
+  Serial.println("Wait 10 seconds");
+  delay(10000);
 }
 
 void setup() {
@@ -136,38 +150,10 @@ void loop() {
       PuzzleStatus puzzleStatus;
       if (parsePuzzleStatus(response, &puzzleStatus)) {
         printPuzzleStatus(&puzzleStatus);
+        updateMovingStatus(&puzzleStatus);
       }
     }
-    char c = client.read();
-    // // if you've gotten to the end of the line (received a newline
-    // // character) and the line is blank, the http request has ended,
-    // // so you can send a reply
-    if (c == '\n' && currentLineIsBlank) {
 
-     // Here is where the POST data is.
-      while(client.available())
-      {
-         Serial.write(client.read());
-      }
-      Serial.println();
-
-    //   Serial.println("Sending response");
-    //   // send a standard http response header
-    //   client.println("HTTP/1.0 200 OK");
-    //   client.println("Content-Type: text/html");
-    //   client.println();
-    //   client.println("<HTML><BODY>TEST OK!</BODY></HTML>");
-    //   client.stop();
-    }
-    // else if (c == '\n') {
-    //   // you're starting a new line
-    //   currentLineIsBlank = true;
-    // }
-    // else if (c != '\r') {
-    //   // you've gotten a character on the current line
-    //   currentLineIsBlank = false;
-    // }
-    Serial.println("Disconnected");
     disconnect();
   }
   wait();

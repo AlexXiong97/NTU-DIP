@@ -13,8 +13,8 @@
 #include <Ethernet.h>
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-const char* server = "d1wt7yy3y78u4b.cloudfront.net";
-const char* resource = "";
+const char* server = "jsonplaceholder.typicode.com";  // server's address
+const char* resource = "/users/1";                    // http resource
 
 // Compute optimal size of the JSON buffer according to what we need to parse.
 // This is only required if you use StaticJsonBuffer.
@@ -135,15 +135,15 @@ void setup() {
 void loop() {
   boolean currentLineIsBlank = true;
   if (connect(server)) {
-    // if (sendRequest(server, resource) && skipResponseHeaders()) {
-    //   char response[512];
-    //   readReponseContent(response, sizeof(response));
-    //
-    //   UserData userData;
-    //   if (parseUserData(response, &userData)) {
-    //     printUserData(&userData);
-    //   }
-    // }
+    if (sendRequest(server, resource) && skipResponseHeaders()) {
+      char response[512];
+      readReponseContent(response, sizeof(response));
+
+      UserData userData;
+      if (parseUserData(response, &userData)) {
+        printUserData(&userData);
+      }
+    }
     char c = client.read();
     // if you've gotten to the end of the line (received a newline
     // character) and the line is blank, the http request has ended,
