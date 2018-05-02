@@ -9,7 +9,7 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 // use the numeric IP instead of the name for the server:
 //IPAddress server(74,125,232,128);  // numeric IP for Google (no DNS)
 char server[] = "d1wt7yy3y78u4b.cloudfront.net";    // name address for Google (using DNS)
-const char* pullingResource = "/puzzle?action=arduinoPulling-v3";
+const char* pullingResource = "/puzzle?action=arduinoPull";
 const char* updateMovingStatusResource = "/puzzle?action=arduinoMove";
 
 struct PuzzleStatus {
@@ -22,6 +22,7 @@ struct PuzzleStatus {
 // with the IP address and port of the server
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
+PuzzleStatus puzzleStatus;
 
 void initSerial() {
   // Open serial communications and wait for port to open:
@@ -112,12 +113,14 @@ void printPuzzleStatus(const PuzzleStatus* puzzleStatus) {
 }
 
 void updateMovingStatus(const PuzzleStatus* puzzleStatus){
-  if (puzzleStatus->toMove){
+  if (client.connect(server, 80)) {
+    Serial.println("connected for moving status update!");
     // send an update request informing the moving status.
     if (sendRequest(server, updateMovingStatusResource) && skipResponseHeaders()) {
       char response[512];
       readReponseContent(response, sizeof(response));
     }
+    disconnect();
     // MOVE MOVE Move!!!
     // Move robotic arm here based on startingPos and endingPos
 
@@ -142,19 +145,22 @@ void setup() {
 void loop() {
   boolean currentLineIsBlank = true;
   if (client.connect(server, 80)) {
-    Serial.println("connected!");
+    Serial.println("connected for status pulling!");
     if (sendRequest(server, pullingResource) && skipResponseHeaders()) {
       char response[512];
       readReponseContent(response, sizeof(response));
 
-      PuzzleStatus puzzleStatus;
       if (parsePuzzleStatus(response, &puzzleStatus)) {
         printPuzzleStatus(&puzzleStatus);
-        updateMovingStatus(&puzzleStatus);
       }
     }
 
     disconnect();
+  }
+
+  // robotic arm moving based on status
+  if (puzzleStatus.toMove) {
+    updateMovingStatus(&puzzleStatus);
   }
   wait();
 }
