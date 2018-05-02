@@ -1,9 +1,6 @@
 const Alexa = require('alexa-sdk');
 const aws = require('aws-sdk');
 const constants = require('./constants');
-const https = require('https');
-const http = require('http');
-const request = require("request");
 const puzzle = require('./puzzle');
 
 var lambda = new aws.Lambda({
@@ -32,6 +29,7 @@ const stateHandlers = {
       // initialze the puzzle state.
       this.attributes['puzzleState'] = constants.originalPuzzle;
       this.attributes['moveCount'] = 0;
+      this.attributes['solved'] = false;
       this.handler.state = constants.states.PLAY_MODE;
       // update proxy "pulling service"
       var mythis = this

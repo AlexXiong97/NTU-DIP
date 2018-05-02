@@ -1,7 +1,7 @@
 {
     "interactionModel":{
         "languageModel":{
-            "invocationName":"sliding puzzle",
+            "invocationName":"group two",
             "intents":[
                 {
                   "name": "AMAZON.CancelIntent",
@@ -21,8 +21,19 @@
                 },{
                   "name": "AMAZON.NoIntent",
                   "samples": []
-                },
-                {
+                },{
+                  "name": "SubmitAnswerIntent",
+                  "slots": [
+                    {
+                      "name": "answer",
+                      "type": "AMAZON.NUMBER"
+                    }
+                  ],
+                  "samples": [
+                    "the final answer is {answer}",
+                    "the answer for the puzzle is {answer}"
+                  ]
+                },{
                   "name":"CheckStatusIntent",
                   "samples":[
                       "puzzle status",

@@ -10,7 +10,10 @@ module.exports = Object.freeze({
   ],
   states: {
     START_MODE: '_START_MODE',
-    PLAY_MODE: '_PLAY_MODE'
+    PLAY_MODE: '_PLAY_MODE',
+    PIANO_GAME: '_PIANO_GAME',
+    LASER_GAME: '_LASER_GAME',
+    SLIDING_GAME: "_SLIDING_GAME"
   },
   arduinoIP: "http://172.20.124.160"
 });

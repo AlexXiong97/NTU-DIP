@@ -1,6 +1,9 @@
 const Alexa = require('alexa-sdk');
 const constants = require('./constants');
 const https = require('https');
+const slidingPuzzleIndexHandler = require('./sliding-puzzle');
+const pianoPuzzleIndexHandler = require('./piano-puzzle');
+const laserPuzzleIndexHandler = require('./laser-puzzle');
 const stateHandlers = require('./stateHandlers');
 const puzzle = require('./puzzle');
 
@@ -10,6 +13,9 @@ exports.handler = function(event, context, callback) {
     alexa.dynamoDBTableName = constants.dynamoDBTableName;
     alexa.registerHandlers(
       newSessionHandlers,
+      slidingPuzzleIndexHandler.newSessionHandlers,
+      pianoPuzzleIndexHandler.newSessionHandlers,
+      laserPuzzleIndexHandler.newSessionHandlers,
       stateHandlers.startModeIntentHandlers,
       stateHandlers.playModeIntentHandlers
     );
@@ -20,11 +26,10 @@ const newSessionHandlers = {
   'NewSession': function(){
     // check if it is the first time being invoked
     if (Object.keys(this.attributes).length == 0) {
-      this.attributes['moveCount'] = 0;
-      this.attributes['solved'] = false;
+      console.log("new session for new user");
     }
-    this.handler.state = constants.states.START_MODE;
-    this.response.speak('Welcome to the final rounds, your mission should you choose to accept it. Would you like to accept the challenge?')
+    this.handler.state = constants.states.PIANO_GAME;
+    this.response.speak('Welcome to the piano challenge, your mission should you choose to accept it. Would you like to accept the challenge?')
       .listen('Say yes to get briefing about the rules.');
     this.emit(':responseReady');
   },
