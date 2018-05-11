@@ -7,17 +7,11 @@ const slidingPuzzleIndexHandler = {
     'NewSession': function(){
       console.log("new session in sliding puzzle");
     },
-    'AMAZON.YesIntent': function() {
+    'SlidingPuzzleIntent': function() {
       this.handler.state = constants.states.START_MODE;
       this.response.shouldEndSession(false);
-      this.response.speak('Welcome to the sliding puzzle, Are you ready for the mind blowing challenge? Say yes... say yes please!')
+      this.response.speak('Welcome to the sliding puzzle, Are you ready for the mind blowing challenge?')
         .listen('Say yes to get briefing about the rules.');
-      this.emit(':responseReady');
-    },
-    'AMAZON.NoIntent': function() {
-      console.log("NO INTENT");
-      this.response.shouldEndSession(false);
-      this.response.speak('Say yes when you are ready to start the sliding puzzle game.');
       this.emit(':responseReady');
     },
     'AMAZON.StopIntent' : function() {
@@ -35,12 +29,6 @@ const slidingPuzzleIndexHandler = {
       this.emit(':responseReady');
     },
     'Unhandled': function(){
-      console.log('UNHANDLED');
-      var message = "say yes to continue, or no, to end the game!";
-      this.response.shouldEndSession(false);
-      this.response.speak(message)
-        .listen(message);
-      this.emit(':responseReady');
     }
   })
 }

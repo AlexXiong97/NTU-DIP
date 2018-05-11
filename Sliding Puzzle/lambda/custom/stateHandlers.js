@@ -184,7 +184,7 @@ const stateHandlers = {
                 // if solved
                 mythis.attributes['solved'] = true;
                 mythis.response.shouldEndSession(true);
-                mythis.response.speak("Okay, moving "+ movingDirection+ ". Congradulations! You have solved the puzzle!");
+                mythis.response.speak("Okay, moving "+ movingDirection+ ". Congradulations! You have solved the puzzle! Maggie is saved!");
                 mythis.emit(':responseReady');
               } else {
                 mythis.response.shouldEndSession(false);

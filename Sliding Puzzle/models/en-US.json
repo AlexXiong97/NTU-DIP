@@ -1,7 +1,7 @@
 {
     "interactionModel":{
         "languageModel":{
-            "invocationName":"group two",
+            "invocationName":"peculiar puzzle",
             "intents":[
                 {
                   "name": "AMAZON.CancelIntent",
@@ -26,19 +26,21 @@
                   "slots": [
                     {
                       "name": "answer",
-                      "type": "AMAZON.NUMBER"
+                      "type": "AMAZON.Movie"
                     }
                   ],
                   "samples": [
                     "the final answer is {answer}",
-                    "the answer for the puzzle is {answer}"
+                    "the answer is {answer}",
+                    "I think it's {answer}",
+                    "my final answer is {answer}"
                   ]
                 },{
-                  "name":"CheckStatusIntent",
+                  "name":"SlidingPuzzleIntent",
                   "samples":[
-                      "puzzle status",
-                      "puzzle state",
-                      "show me the status"
+                      "sliding puzzle",
+                      "robotic arm",
+                      "play the last game"
                   ]
                 },
                 {

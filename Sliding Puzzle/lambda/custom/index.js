@@ -29,7 +29,8 @@ const newSessionHandlers = {
       console.log("new session for new user");
     }
     this.handler.state = constants.states.PIANO_GAME;
-    this.response.speak('Welcome to the piano challenge, your mission should you choose to accept it. Would you like to accept the challenge?')
+    this.response.shouldEndSession(false);
+    this.response.speak('Welcome to the peculiar puzzle, an escape room designed by Group two, There are four smaller puzzles in total, that requires both your brain and your brawn. ... Are you ready for the first challenge?')
       .listen('Say yes to get briefing about the rules.');
     this.emit(':responseReady');
   },
