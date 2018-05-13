@@ -1,6 +1,7 @@
 const Alexa = require('alexa-sdk');
 const constants = require('./constants');
 const puzzle = require('./puzzle');
+const silence = '<audio src="' + constants.PATHS.SILENCE_80_SEC + '" />';
 
 const slidingPuzzleIndexHandler = {
   newSessionHandlers: Alexa.CreateStateHandler(constants.states.SLIDING_GAME, {
@@ -16,19 +17,25 @@ const slidingPuzzleIndexHandler = {
     },
     'AMAZON.StopIntent' : function() {
       this.response.shouldEndSession(false);
-      this.response.speak('See you later! You could invoke me again when you want to resume the game.');
+      this.response.speak(silence);
       this.emit(':responseReady');
     },
     'AMAZON.CancelIntent' : function() {
       this.response.speak('Goodbye!');
       this.emit(':responseReady');
     },
-  	'SessionEndedRequest' : function() {
-      console.log('Session ended with reason: ' + this.event.request.reason);
-      this.response.speak('Goodbye!');
+    'SessionEndedRequest': function() {
+      console.log("SESSIONENDEDREQUEST");
+      // never ends the session.
+      this.response.shouldEndSession(false);
+      this.response.speak(silence);
       this.emit(':responseReady');
     },
     'Unhandled': function(){
+      console.log("unhandled!");
+      this.response.shouldEndSession(false);
+      this.response.speak(silence);
+      this.emit(':responseReady');
     }
   })
 }

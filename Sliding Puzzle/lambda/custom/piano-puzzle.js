@@ -1,6 +1,7 @@
 const Alexa = require('alexa-sdk');
 const constants = require('./constants');
 const puzzle = require('./puzzle');
+const silence = '<audio src="' + constants.PATHS.SILENCE_80_SEC + '" />';
 
 const pianoPuzzleIndexHandler = {
   newSessionHandlers: Alexa.CreateStateHandler(constants.states.PIANO_GAME, {
@@ -10,9 +11,10 @@ const pianoPuzzleIndexHandler = {
     'AMAZON.YesIntent': function() {
       // Help message for piano
       this.response.shouldEndSession(false);
-      this.response.speak('Glad you accept the challenge, your mission for the first puzzle is to decode the message on the unstoppable fan which gives you hints on what to input for the red buttons.' +
-      ' ...You could say help if you want more hints. Or, if you solve the puzzle, you will be given instructions on the LCD screen about how to unlock the next puzzle.');
-      this.emit(':responseReady');
+      // Get silence to wait for a user input.
+      var reply = 'Glad you accept the challenge, your mission for the first puzzle is to decode the message on the unstoppable fan which gives you hints on what to input for the red buttons.' +
+      ' ...You could say help if you want more hints. Or, if you solve the puzzle, you will be given instructions on the LCD screen about how to unlock the next puzzle.' + silence;
+      this.emit(':ask', reply, reply);
     },
     'AMAZON.NoIntent': function() {
       console.log("NO INTENT");
@@ -22,7 +24,7 @@ const pianoPuzzleIndexHandler = {
     },
     'AMAZON.HelpIntent' : function() {
       this.response.shouldEndSession(false);
-      this.response.speak('Here is a little tip: do you remember the stroboscope from those science experiments on televisions? When you shine lights with matching freqency on the spinning fan, you will be amazed!');
+      this.response.speak('Here is a little tip: do you remember the stroboscope from those science experiments on televisions? When you shine lights with matching freqency on the spinning fan, you will be amazed!'+silence);
       this.emit(':responseReady');
     },
     'SubmitAnswerIntent' : function() {
@@ -37,11 +39,22 @@ const pianoPuzzleIndexHandler = {
         this.emit(':responseReady');
       } else {
         this.response.shouldEndSession(false);
-        this.response.speak('Nahhh! you are smarter than this, come on, give it another try.');
+        this.response.speak('Nahhh! you are smarter than this, come on, give it another try.'+silence);
         this.emit(':responseReady');
       }
     },
+    'SessionEndedRequest': function() {
+      console.log("SESSIONENDEDREQUEST");
+      // never ends the session.
+      this.response.shouldEndSession(false);
+      this.response.speak(silence);
+      this.emit(':responseReady');
+    },
     'Unhandled': function(){
+      console.log("unhandled!");
+      this.response.shouldEndSession(false);
+      this.response.speak(silence);
+      this.emit(':responseReady');
     }
   })
 }

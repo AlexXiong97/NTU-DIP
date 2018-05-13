@@ -22,6 +22,12 @@
                   "name": "AMAZON.NoIntent",
                   "samples": []
                 },{
+                  "name": "AMAZON.PauseIntent",
+                  "samples": []
+                },{
+                  "name": "AMAZON.ResumeIntent",
+                  "samples": []
+                },{
                   "name": "SubmitAnswerIntent",
                   "slots": [
                     {

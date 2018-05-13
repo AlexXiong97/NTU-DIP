@@ -15,5 +15,8 @@ module.exports = Object.freeze({
     LASER_GAME: '_LASER_GAME',
     SLIDING_GAME: "_SLIDING_GAME"
   },
-  arduinoIP: "http://172.20.124.160"
+  arduinoIP: "http://172.20.124.160",
+  PATHS: {
+    SILENCE_80_SEC: "https://s3.amazonaws.com/ntu-dip-alexa-skill/silence-80-sec.mp3"
+  }
 });

@@ -1,6 +1,7 @@
 const Alexa = require('alexa-sdk');
 const constants = require('./constants');
 const puzzle = require('./puzzle');
+const silence = '<audio src="' + constants.PATHS.SILENCE_80_SEC + '" />';
 
 const laserPuzzleIndexHandler = {
   newSessionHandlers: Alexa.CreateStateHandler(constants.states.LASER_GAME, {
@@ -10,9 +11,10 @@ const laserPuzzleIndexHandler = {
     'AMAZON.YesIntent': function() {
       // Intro for laser puzzle here
       this.response.shouldEndSession(false);
-      this.response.speak('Welcome to the second puzzle,  Part 1 of this puzzle is to solve a simple logic gate puzzle. Insert the correct logic gate into the correct slot to unlock a laser. Once you assemble all the right logic gate, you will activate three lasers.'+
-      '...What are those lasers used for? Good question, try figure out yourself when you reached there. Or... say Help to get hints.' );
-      this.emit(':responseReady');
+      // Get silence to wait for a user input.
+      var reply = 'Welcome to the second puzzle,  Part 1 of this puzzle is to solve a simple logic gate puzzle. Insert the correct logic gate into the correct slot to unlock a laser. Once you assemble all the right logic gate, you will activate three lasers.'+
+      '...What are those lasers used for? Good question, try figure out yourself when you reached there. Or... say Help to get hints.' + silence;
+      this.emit(':ask', reply, reply);
     },
     'AMAZON.NoIntent': function() {
       console.log("NO INTENT");
@@ -22,7 +24,7 @@ const laserPuzzleIndexHandler = {
     },
     'AMAZON.HelpIntent' : function() {
       this.response.shouldEndSession(false);
-      this.response.speak('Here is a little tips: match all 3 lasers to the correct receivers simultaneously using mirrors.');
+      this.response.speak('Here is a little tips: match all 3 lasers to the correct receivers simultaneously using mirrors.'+silence);
       this.emit(':responseReady');
     },
     'SubmitAnswerIntent' : function() {
@@ -33,16 +35,26 @@ const laserPuzzleIndexHandler = {
       if (guess == 'envelope') {
         this.handler.state = constants.states.SLIDING_GAME;
         this.response.shouldEndSession(false);
-        this.response.speak('Congraduations! Oh, wow, you deserve a 5.0 GPA. But do not get cocky, the next puzzle will get physical!');
-        this.emit(':responseReady');
+        var reply = 'Congraduations! Oh, wow, you deserve a 5.0 GPA. But do not get cocky, the next puzzle will get physical!' + silence;
+        this.emit(':ask', reply, silence);
       } else {
         this.response.shouldEndSession(false);
-        this.response.speak('Nahhh! you are smarter than this, come on, give it another try.');
+        this.response.speak('Nahhh! you are smarter than this, come on, give it another try.' + silence);
         this.emit(':responseReady');
       }
-
+    },
+    'SessionEndedRequest': function() {
+      console.log("SESSIONENDEDREQUEST");
+      // never ends the session.
+      this.response.shouldEndSession(false);
+      this.response.speak(silence);
+      this.emit(':responseReady');
     },
     'Unhandled': function(){
+      console.log("unhandled!");
+      this.response.shouldEndSession(false);
+      this.response.speak(silence);
+      this.emit(':responseReady');
     }
   })
 }

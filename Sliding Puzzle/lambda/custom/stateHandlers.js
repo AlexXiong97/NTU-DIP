@@ -2,6 +2,7 @@ const Alexa = require('alexa-sdk');
 const aws = require('aws-sdk');
 const constants = require('./constants');
 const puzzle = require('./puzzle');
+const silence = '<audio src="' + constants.PATHS.SILENCE_80_SEC + '" />';
 
 var lambda = new aws.Lambda({
   region: 'us-east-1'
@@ -19,11 +20,9 @@ const stateHandlers = {
     },
     'AMAZON.HelpIntent': function() {
       var message = "What you are looking at is not your typical sliding puzzle. Every move is done through voice control."+
-      "There are four commands you could use:move up, move down, move left and, move right. Got it? Now, enjoy the game!";
+      "There are four commands you could use:move up, move down, move left and, move right. Got it? Now, enjoy the game!" + silence;
       this.response.shouldEndSession(false);
-      this.response.speak(message)
-        .listen(message);
-      this.emit(':responseReady');
+      this.emit(':ask', message, silence);
     },
     'AMAZON.YesIntent': function() {
       // initialze the puzzle state.
@@ -47,22 +46,21 @@ const stateHandlers = {
         if(data.Payload){
           console.log("succeed with callback payload: "+JSON.stringify(data.Payload));
           mythis.response.shouldEndSession(false);
-          mythis.response.speak("Great! Make your move!")
-            .listen('Say help to learn about the rules or make your move!');
-          mythis.emit(':responseReady');
+          var reply = "Great! Make your move!" + silence;
+          mythis.emit(':ask', reply, reply);
         }
       });
     },
     'AMAZON.NoIntent': function() {
       console.log("NOINTENT");
       this.response.shouldEndSession(false);
-      this.response.speak('Ok, see you next time!');
+      this.response.speak('Ok, see you next time!'+silence);
       this.emit(':responseReady');
     },
     'AMAZON.StopIntent': function() {
       console.log("STOPINTENT");
       this.response.shouldEndSession(false);
-      this.response.speak("Goodbye!");
+      this.response.speak("Invoke me later!"+silence);
       this.emit(':responseReady');
     },
     'AMAZON.CancelIntent': function() {
@@ -75,15 +73,13 @@ const stateHandlers = {
       console.log("SESSIONENDEDREQUEST");
       // never ends the session.
       this.response.shouldEndSession(false);
-      this.response.speak("Goodbye!");
+      this.response.speak(silence);
       this.emit(':responseReady');
     },
     'Unhandled': function(){
-      console.log('UNHANDLED');
-      var message = "say yes to continue, or no, to end the game!";
+      console.log("unhandled!");
       this.response.shouldEndSession(false);
-      this.response.speak(message)
-        .listen(message);
+      this.response.speak(silence);
       this.emit(':responseReady');
     }
   }),
@@ -106,8 +102,8 @@ const stateHandlers = {
           console.log("succeed with callback payload: "+JSON.stringify(data.Payload));
           if (data.Payload.isMoving) {
             mythis.response.shouldEndSession(false);
-            mythis.response.speak("The robotic arm is still moving, please chill out!");
-            mythis.emit(':responseReady');
+            var reply = "The robotic arm is still moving, please chill out!" + silence;
+            mythis.emit(':ask', reply, reply);
           }
 
           // accept nextMove command only if isMoving == false.
@@ -157,8 +153,8 @@ const stateHandlers = {
             if (mythis.attributes['invalidMove']) {
               // invalid move, don't change anything. return error msg as feedback.
               mythis.response.shouldEndSession(false);
-              mythis.response.speak("Invalid Move");
-              mythis.emit(':responseReady');
+              var reply = "Invalid Move" + silence;
+              mythis.emit(':ask', reply, silence);
             } else {
               // update the puzzleState and moveCount
               mythis.attributes['puzzleState'] = afterState;
@@ -188,8 +184,8 @@ const stateHandlers = {
                 mythis.emit(':responseReady');
               } else {
                 mythis.response.shouldEndSession(false);
-                mythis.response.speak("Okay, moving "+ movingDirection);
-                mythis.emit(':responseReady');
+                var reply = "Okay, moving "+ movingDirection + silence;
+                mythis.emit(':ask', reply, silence);
               }
             }
           }
@@ -199,19 +195,18 @@ const stateHandlers = {
     'CheckStatusIntent': function() {
       console.log(this.attributes['puzzleState']);
       this.response.shouldEndSession(false);
-      this.response.speak("You could see your state in log.");
+      this.response.speak(silence);
       this.emit(':responseReady');
     },
     'AMAZON.HelpIntent': function() {
       this.response.shouldEndSession(false);
-      this.response.speak('There are four commands you could use:move up, move down, move left and, move right.')
-          .listen('Try make a move.');
+      this.response.speak('There are four commands you could use:move up, move down, move left and, move right.'+silence);
       this.emit(':responseReady');
     },
     "AMAZON.StopIntent": function() {
       console.log("STOPINTENT");
       this.response.shouldEndSession(false);
-      this.response.speak("See you later!");
+      this.response.speak("See you later!"+silence);
       this.emit(':responseReady');
     },
     "AMAZON.CancelIntent": function() {
@@ -219,18 +214,17 @@ const stateHandlers = {
       this.response.speak("Goodbye!");
       this.emit(':responseReady');
     },
-    'SessionEndedRequest': function () {
+    'SessionEndedRequest': function() {
       console.log("SESSIONENDEDREQUEST");
+      // never ends the session.
       this.response.shouldEndSession(false);
-      this.response.speak("Goodbye!");
+      this.response.speak(silence);
       this.emit(':responseReady');
     },
-    'Unhandled': function() {
-      console.log("UNHANDLED");
+    'Unhandled': function(){
+      console.log("unhandled!");
       this.response.shouldEndSession(false);
-      this.response.speak('Sorry, I didn\'t get that. Try saying Move Right or any other directions.')
-      .listen('Try saying Move Right or any other directions.');
-      this.response.shouldEndSession(false);
+      this.response.speak(silence);
       this.emit(':responseReady');
     }
   })
