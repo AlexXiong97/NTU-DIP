@@ -1,0 +1,10 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "Sliding Puzzle/lambda/custom/package.json",
+        "arduinoRequestHandlers/lambda/package.json"
+      ]
+    }
+  }
+}
